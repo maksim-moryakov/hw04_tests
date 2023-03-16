@@ -1,11 +1,9 @@
 from django import forms
-from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from ..models import Group, Post
-
-User = get_user_model()
+from ..models import Group, Post, User
 
 
 class PostsPagesTests(TestCase):
@@ -158,7 +156,7 @@ class PaginatorViewTests(TestCase):
         """Проверяем выведение постов на index"""
         response = self.guest_client.get(reverse('posts:index'))
         self.assertEqual(
-            len(response.context.get('page_obj')), 10
+            len(response.context.get('page_obj')), settings.POSTS_ON_PAGE
         )
 
     def test_paginator_index_page_two(self):
