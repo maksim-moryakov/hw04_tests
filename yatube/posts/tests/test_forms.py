@@ -46,8 +46,7 @@ class PostsPagesTests(TestCase):
         self.assertEqual(Post.objects.count(), post_count + 1)
         self.assertTrue(Post.objects.filter(
             author=self.author,
-            text=form_data['text'],
-            id=2).exists()
+            text=form_data['text']).exists()
         )
 
     def test_edit_post_form(self):

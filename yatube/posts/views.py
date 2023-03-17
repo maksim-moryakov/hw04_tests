@@ -50,12 +50,7 @@ def profile(request, username):
 
 def post_detail(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
-    post_number = post.author.posts.count()
-    context = {
-        'post': post,
-        'post_number': post_number
-    }
-    return render(request, 'posts/post_detail.html', context)
+    return render(request, 'posts/post_detail.html', {'post':post})
 
 
 @login_required

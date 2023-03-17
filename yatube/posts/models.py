@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -31,9 +32,11 @@ class Post(models.Model):
 
     class Meta:
         ordering = ('-pub_date',)
+        verbose_name = 'Пост'
+        verbose_name_plural = 'Пост'
 
     def __str__(self) -> str:
-        return self.text
+        return self.text[:settings.POST_LIMIT]
 
 
 class Group(models.Model):
