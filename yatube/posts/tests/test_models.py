@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 
 from ..models import Group, Post, User
@@ -7,15 +8,17 @@ class PostModelTest(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
-        cls.user = User.objects.create(username='auth')
+        cls.author = User.objects.create(
+            username=settings.USER_NAME
+        )
         cls.group = Group.objects.create(
-            title='Тестовая группа',
-            slug='Тестовый слаг',
-            description='Тестовое описание',
+            title=settings.GROUP_TITLE,
+            slug=settings.SLUG,
+            description=settings.DESCRIPTION
         )
         cls.post = Post.objects.create(
-            author=cls.user,
-            text='Тестовый пост',
+            author=cls.author,
+            text=settings.POST_TEXT,
         )
 
     def test_models_have_correct_object_names(self):

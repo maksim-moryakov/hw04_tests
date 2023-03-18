@@ -1,8 +1,17 @@
+from django.conf import settings
 from django.test import Client, TestCase
+from django.urls import reverse
 
 from http import HTTPStatus
 
 from ..models import Group, Post, User
+
+INDEX = reverse('posts:index')
+CREATE = reverse('posts:post_create')
+GROUP = reverse('posts:group_list',
+                kwargs={'slug': settings.SLUG})
+PROFILE = reverse('posts:profile',
+                  kwargs={'username': settings.USER_NAME})
 
 
 class PostURLTests(TestCase):
@@ -11,15 +20,15 @@ class PostURLTests(TestCase):
         super().setUpClass()
         """Созданим запись в БД для проверки доступности
         адреса user/test-slug/"""
-        cls.author = User.objects.create(username='TestAuthor')
+        cls.author = User.objects.create(username=settings.USER_NAME)
         cls.group = Group.objects.create(
-            title='Тестовая группа',
-            slug='test_slug',
-            description='Тестовое описание'
+            title=settings.GROUP_TITLE,
+            slug=settings.SLUG,
+            description=settings.DESCRIPTION
         )
         cls.post = Post.objects.create(
             author=cls.author,
-            text='Тестовый текст',
+            text=settings.POST_TEXT,
             group=cls.group
         )
 
@@ -31,9 +40,9 @@ class PostURLTests(TestCase):
     def test_guest_urls(self):
         """Проверяем общедоступные страницы"""
         urls_names = {
-            '/': HTTPStatus.OK.value,
-            '/group/test_slug/': HTTPStatus.OK.value,
-            '/profile/TestAuthor/': HTTPStatus.OK.value,
+            INDEX: HTTPStatus.OK.value,
+            GROUP: HTTPStatus.OK.value,
+            PROFILE: HTTPStatus.OK.value,
             f'/posts/{self.post.pk}/': HTTPStatus.OK.value,
             '/unexisting_page/': HTTPStatus.NOT_FOUND.value,
         }
@@ -46,7 +55,7 @@ class PostURLTests(TestCase):
         """Проверяем страницы доступные автору поста"""
         urls_names = {
             f'/posts/{self.post.pk}/edit/': HTTPStatus.OK.value,
-            '/create/': HTTPStatus.OK.value,
+            CREATE: HTTPStatus.OK.value,
         }
         for address, status in urls_names.items():
             with self.subTest(status=status):
@@ -56,12 +65,12 @@ class PostURLTests(TestCase):
     def test_url_to_template(self):
         """Проверка соответсвия url и template"""
         urls_template = {
-            '/': 'posts/index.html',
-            '/group/test_slug/': 'posts/group_list.html',
-            '/profile/TestAuthor/': 'posts/profile.html',
+            INDEX: 'posts/index.html',
+            GROUP: 'posts/group_list.html',
+            PROFILE: 'posts/profile.html',
             f'/posts/{self.post.pk}/': 'posts/post_detail.html',
             f'/posts/{self.post.pk}/edit/': 'posts/create_post.html',
-            '/create/': 'posts/create_post.html',
+            CREATE: 'posts/create_post.html',
         }
         for address, template in urls_template.items():
             with self.subTest(address=address):
@@ -73,4 +82,4 @@ class PostURLTests(TestCase):
         response = self.guest_client.get(
             f"/posts/{self.post.pk}/edit/")
         self.assertRedirects(response, (
-            f'/auth/login/?next=/posts/{self.post.id}/edit/'))
+            f'/auth/login/?next=/posts/{self.post.pk}/edit/'))

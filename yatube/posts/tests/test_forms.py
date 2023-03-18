@@ -1,26 +1,35 @@
 from http import HTTPStatus
 
+from django.conf import settings
 from django.test import Client, TestCase
 from django.urls import reverse
 
 from posts.models import Group, Post, User
+
+CREATE = reverse('posts:post_create')
+PROFILE = reverse('posts:profile',
+                  kwargs={'username': settings.USER_NAME})
 
 
 class PostsPagesTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.author = User.objects.create(username='TestAuthor')
+        cls.author = User.objects.create(
+            username=settings.USER_NAME
+        )
         cls.group = Group.objects.create(
-            title='Тестовая группа',
-            slug='test_slug',
-            description='Тестовое описание'
+            title=settings.GROUP_TITLE,
+            slug=settings.SLUG,
+            description=settings.DESCRIPTION
         )
         cls.post = Post.objects.create(
             author=cls.author,
-            text='Тестовый текст',
+            text=settings.POST_TEXT,
             group=cls.group
         )
+        cls.POST_EDIT = reverse('posts:post_edit',
+                                kwargs={'post_id': cls.post.pk})
 
     def setUp(self):
         self.authorized_client = Client()
@@ -34,15 +43,12 @@ class PostsPagesTests(TestCase):
             'group': self.group.pk
         }
         response = self.authorized_client.post(
-            reverse('posts:post_create'),
+            CREATE,
             data=form_data,
             follow=True
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertRedirects(response, reverse(
-            'posts:profile',
-            kwargs={'username': self.author})
-        )
+        self.assertRedirects(response, PROFILE)
         self.assertEqual(Post.objects.count(), post_count + 1)
         self.assertTrue(Post.objects.filter(
             author=self.author,
@@ -53,11 +59,11 @@ class PostsPagesTests(TestCase):
         """Проверка формы редактирования поста"""
         post_count = Post.objects.count()
         form_data = {
-            'text': 'Test edited_post, please ignore',
+            'text': 'Тесе edited_post, игнорировать',
             'group': self.group.pk,
         }
         response = self.authorized_client.post(
-            reverse('posts:post_edit', kwargs={'post_id': self.post.pk}),
+            self.POST_EDIT,
             data=form_data,
             follow=True,
         )
