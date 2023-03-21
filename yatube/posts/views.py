@@ -61,11 +61,8 @@ def post_create(request):
         post = form.save(commit=False)
         post.author = request.user
         post.save()
-        return redirect('posts:profile', post.author)
-    context = {
-        'form': form,
-    }
-    return render(request, 'posts/create_post.html', context)
+        return redirect('posts:profile', post.author.username)
+    return render(request, 'posts/create_post.html', {'form': form})
 
 
 @login_required
@@ -84,6 +81,6 @@ def post_edit(request, post_id):
     context = {
         'form': form,
         'is_edit': True,
-        'post_id': post_id,
+        'post': post,
     }
     return render(request, 'posts/create_post.html', context)

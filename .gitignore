@@ -147,3 +147,6 @@ dmypy.json
 
 # Папка Static с картинками и стилями
 yatube/static/
+
+# Папка Media с картинками и стилями
+yatube/media/
