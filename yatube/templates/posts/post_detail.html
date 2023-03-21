@@ -38,6 +38,7 @@
         <p>{{ post.text }}</p>
         <a class="btn btn-primary" href="{% url 'posts:post_detail' post.pk %}">Подробная информация</a>
       </article>
+      {% include 'posts/includes/comment.html' %}
     </div>
   </div>
 {% endblock %}
