@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.cache import cache_page
 
 from .models import Group, Post, User
 from .forms import CommentForm, PostForm
@@ -13,6 +14,7 @@ def paginator_object(request, post_list):
     return paginator.get_page(page_number)
 
 
+@cache_page(20, key_prefix='index_page')
 def index(request):
     title = 'Последние обновления на сайте'
     post_list = Post.objects.all()
@@ -26,13 +28,15 @@ def index(request):
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
-    title = 'Здесь будет информация о группах проекта Yatube'
+    title = f'Записи группы {group.title}'
     post_list = group.posts.all()
     page_obj = paginator_object(request, post_list)
+    description = group.description
     context = {
         'group': group,
         'title': title,
         'page_obj': page_obj,
+        'description': description
     }
     return render(request, 'posts/group_list.html', context)
 

@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 
 from ..models import Group, Post, User
@@ -8,6 +9,7 @@ class PostModelTest(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
+        cache.clear()
         cls.author = User.objects.create(
             username=settings.USER_NAME
         )
