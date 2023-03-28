@@ -38,7 +38,7 @@ class Post(models.Model):
     class Meta:
         ordering = ('-pub_date',)
         verbose_name = 'Пост'
-        verbose_name_plural = 'Пост'
+        verbose_name_plural = 'Посты'
 
     def __str__(self) -> str:
         return self.text[:settings.POST_LIMIT]
@@ -57,18 +57,58 @@ class Comment(models.Model):
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,
-        related_name='comments'
+        related_name='comments',
+        verbose_name='Пост',
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='comments'
+        related_name='comments',
+        verbose_name='Автор',
     )
     text = models.TextField(
-        'Текст комментария',
-        help_text='Введите текст комментария'
+        help_text='Введите текст комментария, не более 200 символов',
+        max_length=200,
+        verbose_name='Текст комментария',
+        null=False,
     )
     created = models.DateTimeField(
         'Дата комментария',
-        auto_now_add=True
+        auto_now_add=True,
     )
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+        # ordering = ('-pub_date',)
+
+    def __str__(self) -> str:
+        return f'{self.author}: {self.text[:settings.POST_LIMIT]}'
+    
+
+class Follow(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Подписчики',
+        related_name='follower'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор постов',
+        related_name='following'
+    )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'user'],
+                name='unique_follow',
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.user} подписан на {self.author}'
