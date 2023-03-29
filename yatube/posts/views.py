@@ -124,6 +124,7 @@ def paginator_page(
     return Paginator(queryset, posts_on_page).get_page(
         request.GET.get('page'))
 
+
 @login_required
 def follow_index(request):
     post = Post.objects.filter(author__following__user=request.user)

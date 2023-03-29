@@ -84,7 +84,7 @@ class Comment(models.Model):
 
     def __str__(self) -> str:
         return f'{self.author}: {self.text[:settings.POST_LIMIT]}'
-    
+
 
 class Follow(models.Model):
     user = models.ForeignKey(
