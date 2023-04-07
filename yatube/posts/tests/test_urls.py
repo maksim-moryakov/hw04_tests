@@ -83,3 +83,8 @@ class PostURLTests(TestCase):
             f"/posts/{self.post.pk}/edit/")
         self.assertRedirects(response, (
             f'/auth/login/?next=/posts/{self.post.pk}/edit/'))
+
+    def test_404(self):
+        """Страница 404 отдает кастомный шаблон."""
+        response = self.guest_client.get('/unexisting_page/')
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
